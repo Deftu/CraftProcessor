@@ -5,6 +5,7 @@ import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.OnlineStatus
 import net.dv8tion.jda.api.entities.Activity
 import net.dv8tion.jda.api.hooks.AnnotatedEventManager
+import net.dv8tion.jda.api.requests.GatewayIntent
 import net.dv8tion.jda.api.sharding.DefaultShardManagerBuilder
 import net.dv8tion.jda.api.sharding.ShardManager
 import net.dv8tion.jda.api.utils.Compression
@@ -29,6 +30,7 @@ object CraftProcessor : Thread("CraftProcessor") {
             .setActivityProvider {
                 Activity.watching("your Minecraft crashes and logs | $it")
             }.setBulkDeleteSplittingEnabled(true)
+            .enableIntents(GatewayIntent.MESSAGE_CONTENT)
             .setCompression(Compression.ZLIB)
             .setGatewayEncoding(GatewayEncoding.JSON)
             .setStatus(OnlineStatus.DO_NOT_DISTURB)

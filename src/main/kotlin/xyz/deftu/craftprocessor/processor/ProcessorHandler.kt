@@ -12,6 +12,7 @@ object ProcessorHandler : Thread("Processor") {
     override fun run() {
         multithreader.schedule({
             LogIdentifier.reload()
+            UrlCensor.reload()
         }, 0, 10, TimeUnit.SECONDS)
     }
 
@@ -23,11 +24,13 @@ object ProcessorHandler : Thread("Processor") {
         multithreader.runAsync {
             for (attachment in attachments) {
                 if (attachment.isImage || attachment.isVideo) continue
-                val content = attachment.proxy.download().get()?.bufferedReader()?.readText() ?: continue
+                var content = attachment.proxy.download().get()?.bufferedReader()?.readText() ?: continue
                 if (!LogIdentifier.isLog(content)) continue
+                content = UrlCensor.censor(content)
                 val version = versionRegex.find(content)?.groupValues?.get(1) ?: continue
                 println("Found version: $version")
                 println("Content: $content")
+
             }
         }
     }

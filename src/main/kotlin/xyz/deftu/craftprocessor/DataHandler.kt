@@ -12,7 +12,7 @@ object DataHandler {
         val path = if (path.startsWith("/")) path.substring(1) else path
         return httpClient.newCall(Request.Builder()
             .get()
-            .url("https://raw.githubusercontent.com/Deftu/Screencapper/main/data/$path")
+            .url("https://raw.githubusercontent.com/Deftu/CraftProcessor/main/data/$path")
             .build()).execute().body?.string() ?: ""
     }
 
