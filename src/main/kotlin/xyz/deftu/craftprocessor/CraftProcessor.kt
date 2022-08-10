@@ -1,5 +1,7 @@
 package xyz.deftu.craftprocessor
 
+import com.google.gson.FieldNamingPolicy
+import com.google.gson.GsonBuilder
 import net.dv8tion.jda.api.GatewayEncoding
 import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.OnlineStatus
@@ -20,6 +22,11 @@ object CraftProcessor : Thread("CraftProcessor") {
     lateinit var config: Config
         private set
     private lateinit var client: ShardManager
+
+    val gson = GsonBuilder()
+        .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
+        .setLenient()
+        .create()
 
     override fun run() {
         config = Config.read(File("config.json"))

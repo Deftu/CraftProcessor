@@ -7,11 +7,11 @@ import java.util.concurrent.TimeUnit
 
 object ProcessorHandler : Thread("Processor") {
     private val multithreader = Multithreader(25)
-    private val versionRegex = "Minecraft Version: (.*)".toRegex()
 
     override fun run() {
         multithreader.schedule({
             LogIdentifier.reload()
+            ProcessableExtensions.reload()
             UrlCensor.reload()
         }, 0, 10, TimeUnit.SECONDS)
     }
@@ -19,19 +19,13 @@ object ProcessorHandler : Thread("Processor") {
     @SubscribeEvent
     fun onMessageReceived(event: MessageReceivedEvent) {
         if (event.author.isBot) return
+        val message = event.message
         val attachments = event.message.attachments
         if (attachments.isEmpty()) return
-        multithreader.runAsync {
-            for (attachment in attachments) {
-                if (attachment.isImage || attachment.isVideo) continue
-                var content = attachment.proxy.download().get()?.bufferedReader()?.readText() ?: continue
-                if (!LogIdentifier.isLog(content)) continue
-                content = UrlCensor.censor(content)
-                val version = versionRegex.find(content)?.groupValues?.get(1) ?: continue
-                println("Found version: $version")
-                println("Content: $content")
-
-            }
+        if (attachments.any {
+            !it.isImage && !it.isVideo && ProcessableExtensions.isProcessable(it.fileExtension ?: "")
+        }) {
+            multithreader.runAsync(ItemProcessor(event, message, attachments))
         }
     }
 }

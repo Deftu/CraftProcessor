@@ -14,7 +14,7 @@ object UrlCensor {
             if (whitelistedUrls.none {  url ->
                 match.value.contains(url)
             }) {
-                input = input.replace(match.value, "")
+                input = input.replace(match.value, "[URL CENSORED]")
             }
         }
         return input
