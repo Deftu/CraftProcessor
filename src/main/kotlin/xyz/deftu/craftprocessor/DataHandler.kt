@@ -1,5 +1,6 @@
 package xyz.deftu.craftprocessor
 
+import okhttp3.CacheControl
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import java.util.concurrent.CompletableFuture
@@ -12,6 +13,9 @@ object DataHandler {
         val path = if (path.startsWith("/")) path.substring(1) else path
         return httpClient.newCall(Request.Builder()
             .get()
+            .cacheControl(CacheControl.Builder()
+                .noCache()
+                .build())
             .url("https://raw.githubusercontent.com/Deftu/CraftProcessor/main/data/$path")
             .build()).execute().body?.string() ?: ""
     }

@@ -31,18 +31,25 @@ class ItemProcessor(
         val message = MessageBuilder()
             .append("**Version(s):** ${version.versions.joinToString(", ")}")
         val embeds = mutableListOf<MessageEmbed>()
-        version.issues.forEach { issue ->
-            if (issue.causes.all {
-                it.method.run(it.text, content)
-            }) {
-                embeds.add(EmbedBuilder()
-                    .setTitle(issue.title)
-                    .setDescription(issue.solution)
-                    .setColor(issue.severity.color)
-                    .setFooter(issue.severity.text)
-                    .build())
+
+        fun applyWith(version: IssueVersion) {
+            version.issues.forEach { issue ->
+                if (issue.causes.all {
+                    it.method.run(it.text, content)
+                }) {
+                    embeds.add(EmbedBuilder()
+                        .setTitle(issue.title)
+                        .setDescription(issue.solution)
+                        .setColor(issue.severity.color)
+                        .setFooter(issue.severity.text)
+                        .build())
+                }
             }
         }
+
+        applyWith(version)
+        IssueList.fromVersion("global")?.let(::applyWith)
+
         message.setEmbeds(embeds)
         event.message.reply(message
             .setActionRows(ActionRow.of(
