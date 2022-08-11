@@ -11,38 +11,31 @@ import java.awt.Color
 object IssueList {
     private val versions = mutableListOf<IssueVersion>()
 
+    fun fromVersion(version: String): IssueVersion? {
+        return versions.find {
+            it.versions.contains(version)
+        }
+    }
+
     fun reload() {
         val data = DataHandler.fetchData("issues.json")
         if (data.isBlank()) return
         val json = JsonParser.parseString(data)
-        if (!json.isJsonArray) return
+        if (!json.isJsonObject) return
         versions.clear()
-        json.asJsonArray.forEach { element ->
-            if (!element.isJsonObject) return@forEach
-            CraftProcessor.gson
-                .newBuilder()
-                .registerTypeAdapter(List::class.java, (object : TypeAdapter<List<String>>() {
-                    override fun write(output: JsonWriter, value: List<String>) {
-                        output.beginArray()
-                        value.forEach {
-                            output.value(it)
-                        }
-                        output.endArray()
-                    }
-
-                    override fun read(input: JsonReader): List<String> {
-                        val list = mutableListOf<String>()
-                        input.beginArray()
-                        while (input.hasNext()) {
-                            list.add(input.nextString())
-                        }
-                        input.endArray()
-                        return list
-                    }
-                })).create()
-                .fromJson(element, IssueVersion::class.java)?.let { version ->
-                    versions.add(version)
-                }
+        json.asJsonObject.entrySet().forEach { entry ->
+            val (name, element) = entry
+            if (!element.isJsonArray) return@forEach
+            val json = element.asJsonArray
+            val versions = name.trim().split(",")
+            val issues = mutableListOf<Issue>()
+            json.forEach { element ->
+                if (!element.isJsonObject) return@forEach
+                issues.add(CraftProcessor.gson
+                    .fromJson(element, Issue::class.java))
+            }
+            val version = IssueVersion(versions, issues)
+            this.versions.add(version)
         }
     }
 }
@@ -74,9 +67,15 @@ enum class IssueSeverity(
     }
 }
 
-enum class IssueSearchMethod {
-    REGEX,
-    CONTAINS;
+enum class IssueSearchMethod(
+    val run: (String, String) -> Boolean
+) {
+    REGEX({ value, input ->
+        value.toRegex().matches(input)
+    }),
+    CONTAINS({ value, input ->
+        input.contains(value)
+    });
     companion object {
         fun from(input: String) = values().firstOrNull {
             it.name.equals(input, true)

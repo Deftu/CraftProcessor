@@ -1,8 +1,13 @@
 package xyz.deftu.craftprocessor.processor
 
+import net.dv8tion.jda.api.EmbedBuilder
+import net.dv8tion.jda.api.MessageBuilder
 import net.dv8tion.jda.api.entities.Message
 import net.dv8tion.jda.api.entities.Message.Attachment
+import net.dv8tion.jda.api.entities.MessageEmbed
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
+import net.dv8tion.jda.api.interactions.components.ActionRow
+import net.dv8tion.jda.api.interactions.components.buttons.Button
 
 class ItemProcessor(
     val event: MessageReceivedEvent,
@@ -22,6 +27,26 @@ class ItemProcessor(
     }
 
     fun handle(version: String, content: String) {
-
+        val version = IssueList.fromVersion(version.replace("[0-9]+\\.[0-9]+(\\..*)?".toRegex().find(version)?.groupValues?.get(1) ?: return, "")) ?: return
+        val message = MessageBuilder()
+            .append("**Version(s):** ${version.versions.joinToString(", ")}")
+        val embeds = mutableListOf<MessageEmbed>()
+        version.issues.forEach { issue ->
+            if (issue.causes.all {
+                it.method.run(it.text, content)
+            }) {
+                embeds.add(EmbedBuilder()
+                    .setTitle(issue.title)
+                    .setDescription(issue.solution)
+                    .setColor(issue.severity.color)
+                    .setFooter(issue.severity.text)
+                    .build())
+            }
+        }
+        message.setEmbeds(embeds)
+        event.message.reply(message
+            .setActionRows(ActionRow.of(
+                Button.danger(ProcessorHandler.ITEM_DELETE_ID, "Delete")
+            )).build()).queue()
     }
 }

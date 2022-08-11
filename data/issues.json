@@ -1,5 +1,24 @@
 {
     "global": [
+        {
+            "title": "Forge - Mod Loading Failed",
+            "solution": "N/A",
+            "severity": "CRITICAL",
+            "causes": [
+                {
+                    "method": "CONTAINS",
+                    "text": "Description: Mod loading error has occurred"
+                },
+                {
+                    "method": "CONTAINS",
+                    "text": "java.lang.Exception: Mod Loading has failed"
+                },
+                {
+                    "method": "CONTAINS",
+                    "text": "forge"
+                }
+            ]
+        }
     ],
     "1.19": [
     ],
