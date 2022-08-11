@@ -21,8 +21,6 @@ repositories {
 dependencies {
     // Language
     shade(kotlin("stdlib-jdk8"))
-    shade("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.2")
-    shade("org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.6.2")
 
     // Discord
     shade("net.dv8tion:JDA:5.0.0-alpha.17")
