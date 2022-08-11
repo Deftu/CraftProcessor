@@ -2,6 +2,7 @@ package xyz.deftu.craftprocessor.processor
 
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.MessageBuilder
+import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.entities.Message
 import net.dv8tion.jda.api.entities.Message.Attachment
 import net.dv8tion.jda.api.entities.MessageEmbed
@@ -29,7 +30,14 @@ class ItemProcessor(
     fun handle(version: String, content: String) {
         val version = IssueList.fromVersion(version.replace("[0-9]+\\.[0-9]+(\\..*)?".toRegex().find(version)?.groupValues?.get(1) ?: return, "")) ?: return
         val message = MessageBuilder()
-            .append("**Version(s):** ${version.versions.joinToString(", ")}")
+            .append("**${event.author.asTag}** uploaded a log!\n").apply {
+                if (event.message.contentRaw.isNotBlank()) {
+                    append("\"${event.message.contentRaw}\"")
+                    append("\n")
+                }
+            }.append("\n")
+            .append("**Version(s):** ${version.versions.joinToString(", ")}\n")
+            .append("**File:** ${HasteUpload.upload(content)}")
         val embeds = mutableListOf<MessageEmbed>()
 
         fun applyWith(version: IssueVersion) {
@@ -51,9 +59,14 @@ class ItemProcessor(
         IssueList.fromVersion("global")?.let(::applyWith)
 
         message.setEmbeds(embeds)
-        event.message.reply(message
+        val sentMessage = event.channel.sendMessage(message
             .setActionRows(ActionRow.of(
                 Button.danger(ProcessorHandler.ITEM_DELETE_ID, "Delete")
-            )).build()).queue()
+            )).build()).complete()
+        if (!event.isFromGuild || event.guild?.selfMember?.hasPermission(Permission.MESSAGE_MANAGE) == true) event.message.delete().queue()
+        else sentMessage.editMessage(MessageBuilder(sentMessage)
+            .append("\n\n")
+            .append("Failed to delete original log message, this may result in some sensitive info being leaked!")
+            .build()).queue()
     }
 }

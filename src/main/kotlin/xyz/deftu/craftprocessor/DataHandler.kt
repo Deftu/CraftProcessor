@@ -6,8 +6,12 @@ import okhttp3.Request
 import java.util.concurrent.CompletableFuture
 
 object DataHandler {
-    private val httpClient = OkHttpClient.Builder()
-        .build()
+    val httpClient = OkHttpClient.Builder()
+        .addInterceptor {
+            it.proceed(it.request().newBuilder()
+                .addHeader("User-Agent", "CraftProcessor/1.0.0") // TODO - Replace with templates later
+                .build())
+        }.build()
 
     fun fetchData(path: String): String {
         val path = if (path.startsWith("/")) path.substring(1) else path

@@ -3,7 +3,8 @@ package xyz.deftu.craftprocessor
 import java.io.File
 
 data class Config(
-    val token: String?
+    val token: String?,
+    val hastebinUrl: String?,
 ) {
     companion object {
         fun read(file: File): Config =
