@@ -2,7 +2,7 @@
     "global": [
         {
             "title": "Forge - Mod Loading Failed",
-            "solution": "N/A",
+            "solution": "This error is caused by Forge not being able to load a mod, please wait for someone to come help!",
             "severity": "CRITICAL",
             "causes": [
                 {
