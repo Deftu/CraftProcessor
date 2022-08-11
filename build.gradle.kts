@@ -23,8 +23,9 @@ dependencies {
     shade(kotlin("stdlib-jdk8"))
 
     // Discord
-    shade("net.dv8tion:JDA:5.0.0-alpha.17")
-    shade("club.minnced:discord-webhooks:0.8.0")
+    shade("net.dv8tion:JDA:5.0.0-alpha.17") {
+        exclude(module = "opus-java")
+    }
 
     // Utility
     shade(api("xyz.deftu.deftils:Deftils:2.0.0")!!)
@@ -33,9 +34,9 @@ dependencies {
     shade("com.google.guava:guava:31.1-jre")
 
     // Logging
-    shade("org.apache.logging.log4j:log4j-api:2.17.2")
-    shade("org.apache.logging.log4j:log4j-core:2.17.2")
-    shade("org.apache.logging.log4j:log4j-slf4j-impl:2.17.2")
+    shade("org.apache.logging.log4j:log4j-api:2.18.0")
+    shade("org.apache.logging.log4j:log4j-core:2.18.0")
+    shade("org.apache.logging.log4j:log4j-slf4j-impl:2.18.0")
 }
 
 application {
@@ -46,6 +47,7 @@ tasks {
     named<Jar>("shadowJar") {
         archiveClassifier.set("")
         duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+        from("LICENSE")
     }
 }
 
