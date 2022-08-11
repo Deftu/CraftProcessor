@@ -63,10 +63,12 @@ class ItemProcessor(
             .setActionRows(ActionRow.of(
                 Button.danger(ProcessorHandler.ITEM_DELETE_ID, "Delete")
             )).build()).complete()
-        if (!event.isFromGuild || event.guild?.selfMember?.hasPermission(Permission.MESSAGE_MANAGE) == true) event.message.delete().queue()
-        else sentMessage.editMessage(MessageBuilder(sentMessage)
-            .append("\n\n")
-            .append("Failed to delete original log message, this may result in some sensitive info being leaked!")
-            .build()).queue()
+        if (event.isFromGuild) {
+            if (event.guild.selfMember.hasPermission(Permission.MESSAGE_MANAGE)) event.message.delete().queue()
+            else sentMessage.editMessage(MessageBuilder(sentMessage)
+                .append("\n\n")
+                .append("Failed to delete original log message, this may result in some sensitive info being leaked!")
+                .build()).queue()
+        }
     }
 }

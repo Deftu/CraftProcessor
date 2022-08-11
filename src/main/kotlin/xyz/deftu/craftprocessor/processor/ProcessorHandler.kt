@@ -44,6 +44,8 @@ object ProcessorHandler : Thread("Processor") {
             event.member?.hasPermission(Permission.MESSAGE_MANAGE) == true // Check if the user has the permission to manage messages, if true, pass
         ) {
             message.delete().queue()
-        }
+        } else event.reply("You do not have permission to delete this message.")
+            .setEphemeral(true)
+            .queue()
     }
 }
