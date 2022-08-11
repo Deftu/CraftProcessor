@@ -12,10 +12,6 @@
                 {
                     "method": "CONTAINS",
                     "text": "java.lang.Exception: Mod Loading has failed"
-                },
-                {
-                    "method": "CONTAINS",
-                    "text": "forge"
                 }
             ]
         }
