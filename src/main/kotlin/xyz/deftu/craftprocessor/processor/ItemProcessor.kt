@@ -9,6 +9,7 @@ import net.dv8tion.jda.api.entities.MessageEmbed
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import net.dv8tion.jda.api.interactions.components.ActionRow
 import net.dv8tion.jda.api.interactions.components.buttons.Button
+import java.time.OffsetDateTime
 
 class ItemProcessor(
     val event: MessageReceivedEvent,
@@ -50,6 +51,7 @@ class ItemProcessor(
                         .setDescription(issue.solution)
                         .setColor(issue.severity.color)
                         .setFooter(issue.severity.text)
+                        .setTimestamp(OffsetDateTime.now())
                         .build())
                 }
             }

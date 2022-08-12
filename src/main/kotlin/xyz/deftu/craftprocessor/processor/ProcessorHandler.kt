@@ -39,9 +39,12 @@ object ProcessorHandler : Thread("Processor") {
         val message = event.message
         if (!message.author.isBot || message.author.idLong != event.jda.selfUser.idLong) return
         if (
-            !event.isFromGuild || // Check if this is being done in a DM, if true, pass
-            event.member?.idLong == message.referencedMessage?.author?.idLong || // Check if the user is the same as the author of the original message, if true, pass
-            event.member?.hasPermission(Permission.MESSAGE_MANAGE) == true // Check if the user has the permission to manage messages, if true, pass
+        // Check if this is being done in a DM, if true, pass
+            !event.isFromGuild ||
+            // Check if the user is the same as the author of the original message, if true, pass (this is not very reliable...)
+            message.contentStripped.startsWith(event.user.asTag) ||
+            // Check if the user has the permission to manage messages, if true, pass
+            event.member?.hasPermission(Permission.MESSAGE_MANAGE) == true
         ) {
             message.delete().queue()
         } else event.reply("You do not have permission to delete this message.")

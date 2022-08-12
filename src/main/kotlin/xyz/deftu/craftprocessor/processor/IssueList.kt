@@ -7,6 +7,7 @@ import com.google.gson.stream.JsonWriter
 import xyz.deftu.craftprocessor.CraftProcessor
 import xyz.deftu.craftprocessor.DataHandler
 import java.awt.Color
+import java.util.regex.Pattern
 
 object IssueList {
     private val versions = mutableListOf<IssueVersion>()
@@ -68,14 +69,15 @@ enum class IssueSeverity(
 }
 
 enum class IssueSearchMethod(
-    val run: (String, String) -> Boolean
+    val run: (text: String, log: String) -> Boolean
 ) {
-    REGEX({ value, input ->
-        value.toRegex().matches(input)
+    REGEX({ text, log ->
+        text.toRegex().matches(log)
     }),
-    CONTAINS({ value, input ->
-        input.contains(value)
+    CONTAINS({ text, log ->
+        log.contains(text)
     });
+
     companion object {
         fun from(input: String) = values().firstOrNull {
             it.name.equals(input, true)
