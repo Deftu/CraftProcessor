@@ -92,7 +92,7 @@
             "causes": [
                 {
                     "method": "CONTAINS",
-                    "text": "java.lang.NoClassDefFoundError: xyz/matthewtgm/requisite/keybinds/KeyBind"
+                    "text": "java.lang.NoClassDefFoundError: xyz/matthewtgm"
                 }
             ]
         }
