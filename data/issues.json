@@ -1,7 +1,7 @@
 {
     "global": [
         {
-            "title": "Forge - Mod Loading Failed",
+            "title": "Forge - Mod loading failed",
             "solution": "This error is caused by Forge not being able to load a mod, please wait for someone to come help!",
             "severity": "CRITICAL",
             "causes": [
@@ -12,6 +12,17 @@
                 {
                     "method": "CONTAINS",
                     "text": "java.lang.Exception: Mod Loading has failed"
+                }
+            ]
+        },
+        {
+            "title": "OptiFine is broken!",
+            "solution": "Either your OptiFine mod JAR has corrupted, or you have multiple of them in your mods folder.",
+            "severity": "CRITICAL",
+            "causes": [
+                {
+                    "method": "CONTAINS",
+                    "text": "java.lang.NoClassDefFoundError: net/optifine"
                 }
             ]
         }
@@ -30,6 +41,60 @@
     ],
     "1.10": [
     ],
+    "1.8,1.10,1.12": [
+        {
+            "title": "Multiplayer disabled",
+            "solution": "To fix this error, you'll need to enable multiplayer on your Xbox account. To do so, [click here](https://account.xbox.com/en-us/Settings) and head to the Xbox One/Windows 10 Online Safety tab. If you are under the age of 18, you may need a parent/guardian to help you by creating an Xbox family and adding you to it.",
+            "severity": "MAJOR",
+            "causes": [
+                {
+                    "method": "CONTAINS",
+                    "text": "Failed to login: null"
+                }
+            ]
+        }
+    ],
     "1.8": [
+        {
+            "title": "Patcher 1.5 and below has an incompatibility with NotEnoughUpdates",
+            "solution": "Update Patcher to version 1.6 or above.",
+            "severity": "MAJOR",
+            "causes": [
+                {
+                    "method": "CONTAINS",
+                    "text": "at club.sk1er.patcher.registry.AsyncBlockAndItems.load(AsyncBlockAndItems.kt:28)"
+                },
+                {
+                    "method": "CONTAINS",
+                    "text": "at io.github.moulberry.notenoughupdates.miscfeatures.CustomSkulls.func_110549_a(CustomSkulls.java:85)"
+                }
+            ]
+        },
+        {
+            "title": "Broken connected textures in a resourcepack",
+            "solution": "Update Patcher to 1.8.2 or above.",
+            "severity": "MAJOR",
+            "causes": [
+                {
+                    "method": "REGEX",
+                    "text": "at net\\.minecraft\\.client\\.renderer\\.RegionRenderCache\\.(func_180495_p|getBlockState)\\(RegionRenderCache\\.java:72\\)"
+                },
+                {
+                    "method": "REGEX",
+                    "text": "java\\.lang\\.ArrayIndexOutOfBoundsException: -?[0-9]+"
+                }
+            ]
+        },
+        {
+            "title": "Why are your mods so outdated?!",
+            "solution": "Uhmmm... You may need professional help here...",
+            "severity": "CRITICAL",
+            "causes": [
+                {
+                    "method": "CONTAINS",
+                    "text": "java.lang.NoClassDefFoundError: xyz/matthewtgm/requisite/keybinds/KeyBind"
+                }
+            ]
+        }
     ]
 }
