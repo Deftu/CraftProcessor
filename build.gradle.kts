@@ -4,14 +4,21 @@ import groovy.lang.MissingPropertyException
 plugins {
     id("com.github.johnrengelman.shadow") version("7.1.2")
     kotlin("jvm") version("1.7.10")
+    id("net.kyori.blossom") version("1.3.1")
     application
 }
 
+val name = extra["project.name"]?.toString() ?: throw MissingPropertyException("The project name was not configured!")
 group = extra["project.group"] ?: throw MissingPropertyException("The project group was not configured!")
 version = extra["project.version"] ?: throw MissingPropertyException("The project version was not configured!")
 
 val shade by configurations.creating {
     configurations.implementation.get().extendsFrom(this)
+}
+
+blossom {
+    replaceToken("@NAME@", name)
+    replaceToken("@VERSION@", version)
 }
 
 repositories {
@@ -26,6 +33,9 @@ dependencies {
     shade("net.dv8tion:JDA:5.0.0-alpha.17") {
         exclude(module = "opus-java")
     }
+
+    // Storage
+    shade("org.xerial:sqlite-jdbc:3.36.0.3")
 
     // Utility
     shade(api("xyz.deftu.deftils:Deftils:2.0.0")!!)

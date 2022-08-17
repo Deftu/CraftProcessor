@@ -9,18 +9,25 @@ object DataHandler {
     val httpClient = OkHttpClient.Builder()
         .addInterceptor {
             it.proceed(it.request().newBuilder()
-                .addHeader("User-Agent", "CraftProcessor/1.0.0") // TODO - Replace with templates later
+                .addHeader("User-Agent", "${CraftProcessor.NAME}/${CraftProcessor.VERSION}")
                 .build())
         }.build()
 
-    fun fetchData(path: String): String {
+    /**
+     * Fetches data from a file path under the
+     * "data" directory inside the GitHub
+     * repository for the project. This is very
+     * useful for files that need to be updated
+     * on-the-go.
+     */
+    fun fetchData(path: String, branch: String = "main"): String {
         val path = if (path.startsWith("/")) path.substring(1) else path
         return httpClient.newCall(Request.Builder()
             .get()
             .cacheControl(CacheControl.Builder()
                 .noCache()
                 .build())
-            .url("https://raw.githubusercontent.com/Deftu/CraftProcessor/main/data/$path")
+            .url("https://raw.githubusercontent.com/Deftu/CraftProcessor/$branch/data/$path")
             .build()).execute().body?.string() ?: ""
     }
 

@@ -11,16 +11,18 @@ import net.dv8tion.jda.api.requests.GatewayIntent
 import net.dv8tion.jda.api.sharding.DefaultShardManagerBuilder
 import net.dv8tion.jda.api.sharding.ShardManager
 import net.dv8tion.jda.api.utils.Compression
+import xyz.deftu.craftprocessor.commands.TermsCommand
+import xyz.deftu.craftprocessor.config.LocalConfig
 import xyz.deftu.craftprocessor.processor.ProcessorHandler
-import java.io.File
 
 fun main() {
     CraftProcessor.start()
 }
 
 object CraftProcessor : Thread("CraftProcessor") {
-    lateinit var config: Config
-        private set
+    const val NAME = "@NAME@"
+    const val VERSION = "@VERSION@"
+
     private lateinit var client: ShardManager
 
     val gson = GsonBuilder()
@@ -29,11 +31,11 @@ object CraftProcessor : Thread("CraftProcessor") {
         .create()
 
     override fun run() {
-        config = Config.read(File("config.json"))
-        if (config.token.isNullOrBlank()) throw IllegalArgumentException("Token is blank")
+        val token = LocalConfig.INSTANCE.token
+        if (token.isNullOrBlank()) throw IllegalArgumentException("Token is blank")
 
         val eventManager = AnnotatedEventManager()
-        client = DefaultShardManagerBuilder.createDefault(config.token)
+        client = DefaultShardManagerBuilder.createDefault(token)
             .setActivityProvider {
                 Activity.watching("your Minecraft crashes and logs | $it")
             }.setBulkDeleteSplittingEnabled(true)
@@ -46,6 +48,7 @@ object CraftProcessor : Thread("CraftProcessor") {
             }.build()
         client.shards.forEach(JDA::awaitReady)
 
+        TermsCommand.initialize(client)
         ProcessorHandler.start()
         client.addEventListener(ProcessorHandler)
     }

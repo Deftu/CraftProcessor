@@ -1,21 +1,23 @@
-package xyz.deftu.craftprocessor.processor
+package xyz.deftu.craftprocessor.utils
 
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import xyz.deftu.craftprocessor.CraftProcessor
 import xyz.deftu.craftprocessor.DataHandler
+import xyz.deftu.craftprocessor.config.LocalConfig
 
 object HasteUpload {
     val url: String
         get() {
-            var baseUrl = CraftProcessor.config.hastebinUrl ?: "https://hastebin.com"
+            var baseUrl = LocalConfig.INSTANCE.hastebinUrl ?: "https://hastebin.com"
             if (!baseUrl.endsWith("/")) baseUrl += "/"
             return baseUrl
         }
 
     fun upload(input: String): String {
-        val response = DataHandler.httpClient.newCall(Request.Builder()
+        val response = DataHandler.httpClient.newCall(
+            Request.Builder()
             .url(url + "documents")
             .post(input.toRequestBody("text/plain".toMediaType()))
             .build()).execute()
