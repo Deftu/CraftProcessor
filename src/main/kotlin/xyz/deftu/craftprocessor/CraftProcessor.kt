@@ -11,8 +11,11 @@ import net.dv8tion.jda.api.requests.GatewayIntent
 import net.dv8tion.jda.api.sharding.DefaultShardManagerBuilder
 import net.dv8tion.jda.api.sharding.ShardManager
 import net.dv8tion.jda.api.utils.Compression
+import xyz.deftu.craftprocessor.commands.ConfigCommand
 import xyz.deftu.craftprocessor.commands.TermsCommand
+import xyz.deftu.craftprocessor.config.GuildConfig
 import xyz.deftu.craftprocessor.config.LocalConfig
+import xyz.deftu.craftprocessor.config.UserConfig
 import xyz.deftu.craftprocessor.processor.ProcessorHandler
 
 fun main() {
@@ -34,6 +37,7 @@ object CraftProcessor : Thread("CraftProcessor") {
         val token = LocalConfig.INSTANCE.token
         if (token.isNullOrBlank()) throw IllegalArgumentException("Token is blank")
 
+        // Create the client (shard manager)
         val eventManager = AnnotatedEventManager()
         client = DefaultShardManagerBuilder.createDefault(token)
             .setActivityProvider {
@@ -48,8 +52,15 @@ object CraftProcessor : Thread("CraftProcessor") {
             }.build()
         client.shards.forEach(JDA::awaitReady)
 
+        // Commands
         TermsCommand.initialize(client)
-        ProcessorHandler.start()
-        client.addEventListener(ProcessorHandler)
+        ConfigCommand.initialize(client)
+
+        // Config
+        GuildConfig.initialize(client)
+        UserConfig.initialize(client)
+
+        // Features
+        ProcessorHandler.start(client)
     }
 }

@@ -5,6 +5,9 @@ import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.entities.MessageEmbed
 import java.time.OffsetDateTime
 
+fun Boolean.toReadableString(trueStr: String = "Yes", falseStr: String = "No") =
+    if (this) trueStr else falseStr
+
 fun JsonObject.toMessageEmbed(): MessageEmbed {
     val builder = EmbedBuilder()
     if (has("title")) builder.setTitle(this["title"].asString, if (has("url")) this["url"].asString else null)
