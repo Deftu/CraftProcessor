@@ -3,10 +3,15 @@ package xyz.deftu.craftprocessor.utils
 import com.google.gson.JsonObject
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.entities.MessageEmbed
+import net.dv8tion.jda.api.interactions.components.buttons.Button
+import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle
 import java.time.OffsetDateTime
 
 fun Boolean.toReadableString(trueStr: String = "Yes", falseStr: String = "No") =
     if (this) trueStr else falseStr
+
+fun Boolean.toButton(id: String, label: String) =
+    Button.of(if (this) ButtonStyle.SUCCESS else ButtonStyle.DANGER, id, label)
 
 fun JsonObject.toMessageEmbed(): MessageEmbed {
     val builder = EmbedBuilder()

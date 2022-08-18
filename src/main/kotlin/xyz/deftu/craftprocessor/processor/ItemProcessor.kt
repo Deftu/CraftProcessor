@@ -3,7 +3,6 @@ package xyz.deftu.craftprocessor.processor
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.MessageBuilder
 import net.dv8tion.jda.api.Permission
-import net.dv8tion.jda.api.entities.Message
 import net.dv8tion.jda.api.entities.Message.Attachment
 import net.dv8tion.jda.api.entities.MessageEmbed
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
@@ -22,13 +21,13 @@ class ItemProcessor(
 
     override fun run() {
         val config = UserConfig.getUserConfig(event.author.id)
-        if (config != null && config.hasDisabled) return
+        if (config != null && config.isDisabled) return
 
         if (event.isFromGuild) {
             val guild = event.guild
-            val channelId = event.channel.id
+            val channelId = event.channel.idLong
             val member = event.member!!
-            val userId = member.id
+            val userId = member.idLong
             val config = GuildConfig.getGuildConfig(guild.id)
             if (config != null) {
                 if (
@@ -36,8 +35,8 @@ class ItemProcessor(
                     (config.hasChannelWhitelist && !config.isChannelWhitelisted(channelId)) ||
                     (config.hasUserBlacklist && config.isUserBlacklisted(userId)) ||
                     (config.hasUserWhitelist && !config.isUserWhitelisted(userId)) ||
-                    (config.hasRoleBlacklist && member.roles.any { config.isRoleBlacklisted(it.id) }) ||
-                    (config.hasRoleWhitelist && member.roles.none { config.isRoleWhitelisted(it.id) })
+                    (config.hasRoleBlacklist && member.roles.any { config.isRoleBlacklisted(it.idLong) }) ||
+                    (config.hasRoleWhitelist && member.roles.none { config.isRoleWhitelisted(it.idLong) })
                 ) return
             }
         }
