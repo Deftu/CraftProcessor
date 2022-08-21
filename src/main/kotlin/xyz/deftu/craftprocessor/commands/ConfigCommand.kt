@@ -25,7 +25,7 @@ object ConfigCommand {
             Commands.slash("config", "Displays a config menu.")
                 .setDefaultPermissions(DefaultMemberPermissions.enabledFor(Permission.MANAGE_SERVER))
                 .addOption(OptionType.STRING, "type", "The type of config you'd like to configure.", true, true)
-        ).queue()
+        )
     }
 
     @SubscribeEvent

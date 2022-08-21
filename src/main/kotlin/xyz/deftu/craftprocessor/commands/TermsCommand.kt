@@ -21,7 +21,7 @@ object TermsCommand {
         action.addCommands(
             Commands.slash("terms", "Sends the Terms of Service message for the bot.")
                 .setDefaultPermissions(DefaultMemberPermissions.enabledFor(Permission.MESSAGE_MANAGE))
-        ).queue()
+        )
     }
 
     @SubscribeEvent
@@ -41,7 +41,8 @@ object TermsCommand {
                     .setTitle("Terms of Service")
                     .setDescription(terms
                         .replace("\$NAME", CraftProcessor.NAME)
-                        .replace("\$VERSION", CraftProcessor.VERSION))
+                        .replace("\$VERSION", CraftProcessor.VERSION)
+                        .trimMargin())
                     .build())
                 .setActionRows(ActionRow.of(
                     Button.danger("tos-opt-out", "Opt-out")

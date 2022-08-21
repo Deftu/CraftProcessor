@@ -17,7 +17,7 @@ object AboutCommand {
         client.addEventListener(this)
         action.addCommands(
             Commands.slash("about", "Shows off some neat information about the bot.")
-        ).queue()
+        )
     }
 
     @SubscribeEvent
