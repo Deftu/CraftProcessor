@@ -28,10 +28,10 @@ object AboutCommand {
             .setTitle(CraftProcessor.NAME)
             .setTimestamp(OffsetDateTime.now())
         embed.descriptionBuilder.apply {
-            append("CraftProcessor is a Discord bot that parses and handles Minecraft crash reports and logs. It is written in the [Kotlin programming language](https://kotlinlang.org/) and uses the [JDA library](https://github.com/DV8FromTheWorld/JDA).").append("\n\n")
+            append("CraftProcessor is a Discord bot made by [UnifyCraft](https://github.com/UnifyCraft) that parses and handles Minecraft crash reports and logs. It is written in the [Kotlin programming language](https://kotlinlang.org/) and uses the [JDA library](https://github.com/DV8FromTheWorld/JDA).").append("\n\n")
             append("**").append("Version: ").append("**").append(CraftProcessor.VERSION).append("\n")
             append("**").append("Uptime: ").append("**").append(CraftProcessor.startTime.until(OffsetDateTime.now(), ChronoUnit.MILLIS).toFormattedTime()).append("\n")
-            append("**").append("Source: ").append("**").append("https://github.com/Deftu/${CraftProcessor.NAME}")
+            append("**").append("Source: ").append("**").append("https://github.com/UnifyCraft/${CraftProcessor.NAME}")
         }
 
         event.reply(embed.build()).queue()

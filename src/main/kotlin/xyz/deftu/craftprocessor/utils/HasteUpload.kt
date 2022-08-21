@@ -25,6 +25,7 @@ object HasteUpload {
             val hasteResponse = CraftProcessor.gson
                 .fromJson(response.body!!.string(), HastebinResponse::class.java)
                 .key
+            response.close()
             return "$url$hasteResponse"
         } else "Error uploading to Hastebin: ${response.message} (${response.code})"
     }

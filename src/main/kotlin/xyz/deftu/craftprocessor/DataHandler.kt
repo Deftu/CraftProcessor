@@ -24,9 +24,7 @@ object DataHandler {
         val path = if (path.startsWith("/")) path.substring(1) else path
         return httpClient.newCall(Request.Builder()
             .get()
-            .cacheControl(CacheControl.Builder()
-                .noCache()
-                .build())
+            .addHeader("Cache-Control", "no-cache")
             .url("https://raw.githubusercontent.com/Deftu/CraftProcessor/$branch/data/$path")
             .build()).execute().body?.string() ?: ""
     }

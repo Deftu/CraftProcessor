@@ -78,6 +78,7 @@ object CraftProcessor : Thread("CraftProcessor") {
 
         // Features
         ProcessorHandler.start(client)
+        StatsTracker.initialize()
 
         Runtime.getRuntime().addShutdownHook(Thread({
             shutdownListeners.forEach { it() }

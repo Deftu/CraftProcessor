@@ -56,6 +56,7 @@ internal class GuildConfigManager {
         configs[id] ?: if (createIfNotExists) createGuild(id) else null
 
     fun saveGuild(config: GuildConfig) {
+        configs[config.id] = config
         SQLiteHelper.update(
             connection = connection,
             tableName = "configs",

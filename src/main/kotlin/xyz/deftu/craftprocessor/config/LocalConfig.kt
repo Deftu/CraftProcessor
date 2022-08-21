@@ -5,7 +5,7 @@ import java.io.File
 
 data class LocalConfig(
     val token: String?,
-    val logsChannelId: Long?,
+    val statsTracker: StatsTrackerConfig?,
     val hastebinUrl: String?,
 ) {
     companion object {
@@ -24,3 +24,7 @@ data class LocalConfig(
                 }.readText(), LocalConfig::class.java)
     }
 }
+
+data class StatsTrackerConfig(
+    val port: Int
+)

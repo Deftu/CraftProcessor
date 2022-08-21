@@ -8,6 +8,7 @@ import net.dv8tion.jda.api.entities.MessageEmbed
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import net.dv8tion.jda.api.interactions.components.ActionRow
 import net.dv8tion.jda.api.interactions.components.buttons.Button
+import xyz.deftu.craftprocessor.StatsTracker
 import xyz.deftu.craftprocessor.config.ConfigManager
 import xyz.deftu.craftprocessor.utils.HasteUpload
 import java.time.OffsetDateTime
@@ -26,7 +27,6 @@ class ItemProcessor(
             val guild = event.guild
             val channelId = event.channel.idLong
             val member = event.member!!
-            val userId = member.idLong
             val config = ConfigManager.getGuild(guild.id)
             if (config != null) {
                 if (
@@ -49,7 +49,19 @@ class ItemProcessor(
     }
 
     fun handle(version: String, content: String) {
-        val version = IssueList.fromVersion(stripVersion(version)) ?: return
+        val strippedVersion = stripVersion(version)
+        val versions = IssueList.fromVersion(strippedVersion) ?: return
+        val fileUrl = HasteUpload.upload(content)
+        var versionString = ""
+        for (issueVersion in versions) {
+            for (version in issueVersion.versions) {
+                if (versionString.contains(version)) continue
+                versionString += version
+                if (issueVersion != versions.last()) versionString += ", "
+                if (version != issueVersion.versions.last()) continue
+            }
+        }
+
         val message = MessageBuilder()
             .append("**${event.author.asTag}** uploaded a log!\n").apply {
                 if (event.message.contentRaw.isNotBlank()) {
@@ -57,8 +69,8 @@ class ItemProcessor(
                     append("\n")
                 }
             }.append("\n")
-            .append("**Version(s):** ${version.versions.joinToString(", ")}\n")
-            .append("**File:** ${HasteUpload.upload(content)}")
+            .append("**Version(s):** ${versionString}\n")
+            .append("**File:** $fileUrl")
         val embeds = mutableListOf<MessageEmbed>()
 
         fun applyWith(version: IssueVersion) {
@@ -77,8 +89,8 @@ class ItemProcessor(
             }
         }
 
-        applyWith(version)
-        IssueList.fromVersion("global")?.let(::applyWith)
+        for (version in versions) applyWith(version)
+        IssueList.fromVersion("global").getOrNull(0)?.let(::applyWith)
 
         message.setEmbeds(embeds)
         val sentMessage = event.channel.sendMessage(message
@@ -99,6 +111,9 @@ class ItemProcessor(
                 }
             }) else editMessageDeleteError()
         }
+
+        StatsTracker.incrementItemsProcessed()
+        StatsTracker.incrementItemsProcessed(strippedVersion)
     }
 
     private fun stripVersion(content: String) =

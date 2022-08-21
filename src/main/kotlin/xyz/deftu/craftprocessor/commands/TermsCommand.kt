@@ -38,7 +38,6 @@ object TermsCommand {
             val terms = DataHandler.fetchData("terms.txt", "rework")
                 .replace("\$NAME", CraftProcessor.NAME)
                 .replace("\$VERSION", CraftProcessor.VERSION)
-            println("Terms: $terms")
             event.channel.sendMessage(MessageBuilder()
                 .setEmbeds(CraftProcessor.createEmbed()
                     .setTitle("Terms of Service")

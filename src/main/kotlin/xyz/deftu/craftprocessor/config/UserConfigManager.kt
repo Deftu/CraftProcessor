@@ -46,6 +46,7 @@ internal class UserConfigManager {
         }
 
     fun saveUser(config: UserConfig) {
+        configs[config.id] = config
         SQLiteHelper.update(
             connection = connection,
             tableName = "configs",
@@ -95,7 +96,7 @@ internal class UserConfigManager {
             // Create a new user config.
             val config = UserConfig(
                 id = userConfig["id"]?.toString() ?: continue,
-                toggle = userConfig["toggle"] == "1"
+                toggle = userConfig["toggle"] == 1
             )
             // Add it to the array.
             this.configs[config.id] = config
