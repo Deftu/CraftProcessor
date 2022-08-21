@@ -1,17 +1,19 @@
 package xyz.deftu.craftprocessor.commands
 
-import com.google.gson.JsonObject
-import com.google.gson.JsonParser
 import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.MessageBuilder
 import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent
 import net.dv8tion.jda.api.hooks.SubscribeEvent
 import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions
 import net.dv8tion.jda.api.interactions.commands.build.Commands
+import net.dv8tion.jda.api.interactions.components.ActionRow
+import net.dv8tion.jda.api.interactions.components.buttons.Button
 import net.dv8tion.jda.api.requests.restaction.CommandListUpdateAction
+import xyz.deftu.craftprocessor.CraftProcessor
 import xyz.deftu.craftprocessor.DataHandler
-import xyz.deftu.craftprocessor.utils.toMessageEmbed
+import xyz.deftu.craftprocessor.config.ConfigManager
 
 object TermsCommand {
     fun initialize(client: JDA, action: CommandListUpdateAction) {
@@ -33,18 +35,35 @@ object TermsCommand {
         }
 
         try {
-            val termsRaw = DataHandler.fetchData("terms.json", "rework") // We'll use the rework branch explicitly while in the testing phase.
-            val termsJsonRaw = JsonParser.parseString(termsRaw)
-            if (!termsJsonRaw.isJsonObject) fail().also { return }
-            val termsJson = termsJsonRaw.asJsonObject
+            val terms = DataHandler.fetchData("terms.txt", "rework")
             event.channel.sendMessage(MessageBuilder()
-                .setEmbeds(termsJson.toMessageEmbed())
-                .build()).queue()
+                .setEmbeds(CraftProcessor.createEmbed()
+                    .setTitle("Terms of Service")
+                    .setDescription(terms
+                        .replace("\$NAME", CraftProcessor.NAME)
+                        .replace("\$VERSION", CraftProcessor.VERSION))
+                    .build())
+                .setActionRows(ActionRow.of(
+                    Button.danger("tos-opt-out", "Opt-out")
+                )).build()).queue()
             event.reply("Sent the Terms of Service successfully.")
                 .setEphemeral(true)
                 .queue()
         } catch (e: Exception) {
             fail()
         }
+    }
+
+    @SubscribeEvent
+    fun onButtonClicked(event: ButtonInteractionEvent) {
+        if (event.interaction.componentId != "tos-opt-out") return
+
+        val action = event.deferReply()
+            .setEphemeral(true)
+            .complete()
+        val config = ConfigManager.getUser(event.user.id, true)!!
+        config.toggle = false
+        ConfigManager.saveUser(config)
+        action.editOriginal("Opted you out of the bot.").queue()
     }
 }

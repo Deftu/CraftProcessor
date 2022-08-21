@@ -1,0 +1,10 @@
+This server uses the $NAME bot to help handle Minecraft
+crashes and logs. It will remove as much sensitive information
+as it can and upload it to a [Hastebin](https://hastebin.com/about.md) server to make it
+easier to view. The bot will also collect information to improve
+itself and make yours and other users' experience significantly better.
+
+Sending a log or crash report to this bot or to this server
+constitutes consent to the collection of information described
+above. To opt-out of this behaviour, you can disable the bot's
+functionality in your config with `/config`.
