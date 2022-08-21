@@ -8,8 +8,7 @@ import net.dv8tion.jda.api.entities.MessageEmbed
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import net.dv8tion.jda.api.interactions.components.ActionRow
 import net.dv8tion.jda.api.interactions.components.buttons.Button
-import xyz.deftu.craftprocessor.config.GuildConfig
-import xyz.deftu.craftprocessor.config.UserConfig
+import xyz.deftu.craftprocessor.config.ConfigManager
 import xyz.deftu.craftprocessor.utils.HasteUpload
 import java.time.OffsetDateTime
 
@@ -20,23 +19,22 @@ class ItemProcessor(
     private val versionRegex = "Minecraft Version: (.*)".toRegex()
 
     override fun run() {
-        val config = UserConfig.getUserConfig(event.author.id)
-        if (config != null && config.isDisabled) return
+        val config = ConfigManager.getUser(event.author.id)
+        if (config != null && !config.toggle) return
 
         if (event.isFromGuild) {
             val guild = event.guild
             val channelId = event.channel.idLong
             val member = event.member!!
             val userId = member.idLong
-            val config = GuildConfig.getGuildConfig(guild.id)
+            val config = ConfigManager.getGuild(guild.id)
             if (config != null) {
                 if (
-                    (config.hasChannelBlacklist && config.isChannelBlacklisted(channelId)) ||
-                    (config.hasChannelWhitelist && !config.isChannelWhitelisted(channelId)) ||
-                    (config.hasUserBlacklist && config.isUserBlacklisted(userId)) ||
-                    (config.hasUserWhitelist && !config.isUserWhitelisted(userId)) ||
-                    (config.hasRoleBlacklist && member.roles.any { config.isRoleBlacklisted(it.idLong) }) ||
-                    (config.hasRoleWhitelist && member.roles.none { config.isRoleWhitelisted(it.idLong) })
+                    (config.channelWhitelist && !config.isChannelWhitelisted(channelId)) ||
+                    (config.channelBlacklist && config.isChannelBlacklisted(channelId)) ||
+
+                    (config.roleWhitelist && member.roles.none { config.isRoleWhitelisted(it.idLong) }) ||
+                    (config.roleBlacklist && member.roles.any { config.isRoleBlacklisted(it.idLong) })
                 ) return
             }
         }

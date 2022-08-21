@@ -9,18 +9,14 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 import net.dv8tion.jda.api.hooks.SubscribeEvent
 import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions
 import net.dv8tion.jda.api.interactions.commands.build.Commands
-import net.dv8tion.jda.api.sharding.ShardManager
+import net.dv8tion.jda.api.requests.restaction.CommandListUpdateAction
 import xyz.deftu.craftprocessor.DataHandler
 import xyz.deftu.craftprocessor.utils.toMessageEmbed
 
 object TermsCommand {
-    fun initialize(client: ShardManager) {
+    fun initialize(client: JDA, action: CommandListUpdateAction) {
         client.addEventListener(this)
-        client.shards.forEach(this::register)
-    }
-
-    private fun register(client: JDA) {
-        client.updateCommands().addCommands(
+        action.addCommands(
             Commands.slash("terms", "Sends the Terms of Service message for the bot.")
                 .setDefaultPermissions(DefaultMemberPermissions.enabledFor(Permission.MESSAGE_MANAGE))
         ).queue()
@@ -44,6 +40,9 @@ object TermsCommand {
             event.channel.sendMessage(MessageBuilder()
                 .setEmbeds(termsJson.toMessageEmbed())
                 .build()).queue()
+            event.reply("Sent the Terms of Service successfully.")
+                .setEphemeral(true)
+                .queue()
         } catch (e: Exception) {
             fail()
         }

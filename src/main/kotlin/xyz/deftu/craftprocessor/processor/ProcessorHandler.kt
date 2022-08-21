@@ -29,7 +29,6 @@ object ProcessorHandler {
     @SubscribeEvent
     fun onMessageReceived(event: MessageReceivedEvent) {
         if (event.author.isBot) return
-        val message = event.message
         val attachments = event.message.attachments
         if (attachments.isEmpty()) return
         if (attachments.any {
