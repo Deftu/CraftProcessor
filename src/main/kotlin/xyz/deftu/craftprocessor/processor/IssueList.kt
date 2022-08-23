@@ -12,8 +12,8 @@ import java.util.regex.Pattern
 object IssueList {
     private val versions = mutableListOf<IssueVersion>()
 
-    fun fromVersion(version: String): IssueVersion? {
-        return versions.find {
+    fun fromVersion(version: String): List<IssueVersion> {
+        return versions.filter {
             it.versions.contains(version)
         }
     }
