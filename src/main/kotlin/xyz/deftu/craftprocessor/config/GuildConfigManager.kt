@@ -1,18 +1,19 @@
 package xyz.deftu.craftprocessor.config
 
-import net.dv8tion.jda.api.MessageBuilder
 import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.entities.Guild
 import net.dv8tion.jda.api.entities.Member
-import net.dv8tion.jda.api.entities.Message
-import net.dv8tion.jda.api.interactions.components.ActionRow
-import net.dv8tion.jda.api.interactions.components.buttons.Button
+import net.dv8tion.jda.api.interactions.components.ItemComponent
 import net.dv8tion.jda.api.interactions.components.selections.SelectMenu
+import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder
+import net.dv8tion.jda.api.utils.messages.MessageCreateData
+import xyz.deftu.MessageDecoration
 import xyz.deftu.craftprocessor.CraftProcessor
 import xyz.deftu.craftprocessor.utils.SQLiteHelper
 import xyz.deftu.craftprocessor.utils.convertToMentions
 import xyz.deftu.craftprocessor.utils.toButton
 import xyz.deftu.craftprocessor.utils.toReadableString
+import xyz.deftu.embed
 import java.io.File
 import java.sql.Connection
 import java.time.OffsetDateTime
@@ -78,35 +79,8 @@ internal class GuildConfigManager {
         )
     }
 
-    fun createMessage(config: GuildConfig, guild: Guild, member: Member? = null): Message {
-        val embed = CraftProcessor.createEmbed()
-            .setTitle("Guild Config")
-            .setTimestamp(OffsetDateTime.now())
-            .setFooter(guild.name, guild.iconUrl)
-
-        embed.descriptionBuilder.apply {
-            append("**").append("Channel whitelist: ").append("**").append(config.channelWhitelist.toReadableString()).append("\n")
-            append("**").append("Whitelisted channels: ").append("**").append(config.whitelistedChannels.convertToMentions {
-                guild.getTextChannelById(it)
-            }).append("\n\n")
-
-            append("**").append("Channel blacklist: ").append("**").append(config.channelBlacklist.toReadableString()).append("\n")
-            append("**").append("Blacklisted channels: ").append("**").append(config.blacklistedChannels.convertToMentions {
-                guild.getTextChannelById(it)
-            }).append("\n\n")
-
-            append("**").append("Role whitelist: ").append("**").append(config.roleWhitelist.toReadableString()).append("\n")
-            append("**").append("Whitelisted roles: ").append("**").append(config.whitelistedRoles.convertToMentions {
-                guild.getRoleById(it)
-            }).append("\n\n")
-
-            append("**").append("Role blacklist: ").append("**").append(config.roleBlacklist.toReadableString()).append("\n")
-            append("**").append("Blacklisted roles: ").append("**").append(config.blacklistedRoles.convertToMentions {
-                guild.getRoleById(it)
-            })
-        }
-
-        val actionRows = mutableListOf<ActionRow>()
+    fun createMessage(config: GuildConfig, guild: Guild, member: Member? = null): MessageCreateData {
+        val components = mutableListOf<List<ItemComponent>>()
         run {
             // Channels
 
@@ -121,43 +95,51 @@ internal class GuildConfigManager {
                 it.name to it.id
             }
 
-            actionRows.add(ActionRow.of(
+            components.add(listOf(
                 config.channelWhitelist.toButton("guild_config - channel_whitelist", "Channel whitelist"),
                 config.channelBlacklist.toButton("guild_config - channel_blacklist", "Channel blacklist"),
                 config.roleWhitelist.toButton("guild_config - role_whitelist", "Role whitelist"),
                 config.roleBlacklist.toButton("guild_config - role_blacklist", "Role blacklist")
             ))
 
-            actionRows.add(ActionRow.of(
+            components.add(listOf(
                 SelectMenu.create("guild_config - channel_whitelist_edit").apply {
                     placeholder = "Edit whitelisted channels"
+                    minValues = 0
+                    maxValues = 10
                     channels.forEach {
                         addOption(it.first, it.second)
                     }
                 }.build()
             ))
 
-            actionRows.add(ActionRow.of(
+            components.add(listOf(
                 SelectMenu.create("guild_config - channel_blacklist_edit").apply {
                     placeholder = "Edit blacklisted channels"
+                    minValues = 0
+                    maxValues = 10
                     channels.forEach {
                         addOption(it.first, it.second)
                     }
                 }.build()
             ))
 
-            actionRows.add(ActionRow.of(
+            components.add(listOf(
                 SelectMenu.create("guild_config - role_whitelist_edit").apply {
                     placeholder = "Edit whitelisted roles"
+                    minValues = 0
+                    maxValues = 10
                     roles.forEach {
                         addOption(it.first, it.second)
                     }
                 }.build()
             ))
 
-            actionRows.add(ActionRow.of(
+            components.add(listOf(
                 SelectMenu.create("guild_config - role_blacklistlist_edit").apply {
                     placeholder = "Edit blacklisted roles"
+                    minValues = 0
+                    maxValues = 10
                     roles.forEach {
                         addOption(it.first, it.second)
                     }
@@ -165,10 +147,36 @@ internal class GuildConfigManager {
             ))
         }
 
-        return MessageBuilder()
-            .setEmbeds(embed.build())
-            .setActionRows(actionRows)
-            .build()
+        return MessageCreateBuilder()
+            .setEmbeds(embed { 
+                title("Guild Config")
+                colorRaw(CraftProcessor.COLOR)
+                timestamp(OffsetDateTime.now())
+                footer(guild.name, guild.iconUrl)
+                description {
+                    append("Channel whitelist: ").append(config.channelWhitelist.toReadableString()).append("\n")
+                    append("Whitelisted channels: ", MessageDecoration.BOLD).append(config.whitelistedChannels.convertToMentions {
+                        guild.getTextChannelById(it)
+                    }).append("\n\n")
+
+                    append("Channel blacklist: ", MessageDecoration.BOLD).append(config.channelBlacklist.toReadableString()).append("\n")
+                    append("Blacklisted channels: ", MessageDecoration.BOLD).append(config.blacklistedChannels.convertToMentions {
+                        guild.getTextChannelById(it)
+                    }).append("\n\n")
+
+                    append("Role whitelist: ", MessageDecoration.BOLD).append(config.roleWhitelist.toReadableString()).append("\n")
+                    append("Whitelisted roles: ", MessageDecoration.BOLD).append(config.whitelistedRoles.convertToMentions {
+                        guild.getRoleById(it)
+                    }).append("\n\n")
+
+                    append("Role blacklist: ", MessageDecoration.BOLD).append(config.roleBlacklist.toReadableString()).append("\n")
+                    append("Blacklisted roles: ", MessageDecoration.BOLD).append(config.blacklistedRoles.convertToMentions {
+                        guild.getRoleById(it)
+                    })
+                }
+            }).apply {
+                components.forEach(::addActionRow)
+            }.build()
     }
 
     private fun loadGuilds() {

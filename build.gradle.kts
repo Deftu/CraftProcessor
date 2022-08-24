@@ -8,7 +8,6 @@ plugins {
     application
 }
 
-val name = extra["project.name"]?.toString() ?: throw MissingPropertyException("The project name was not configured!")
 group = extra["project.group"] ?: throw MissingPropertyException("The project group was not configured!")
 version = extra["project.version"] ?: throw MissingPropertyException("The project version was not configured!")
 
@@ -23,6 +22,7 @@ blossom {
 
 repositories {
     mavenCentral()
+    maven("https://maven.unifycraft.xyz/releases/")
 }
 
 dependencies {
@@ -33,6 +33,8 @@ dependencies {
     shade("net.dv8tion:JDA:${libs.versions.jda.get()}") {
         exclude(module = "opus-java")
     }
+    shade("xyz.deftu:KDA:${libs.versions.kda.get()}")
+    shade("xyz.deftu:JDAC:${libs.versions.jdac.get()}")
 
     // Storage
     shade("org.xerial:sqlite-jdbc:${libs.versions.sqlitejdbc.get()}")
@@ -61,8 +63,8 @@ tasks {
         duplicatesStrategy = DuplicatesStrategy.EXCLUDE
         from("LICENSE")
     }
-}
 
-tasks.withType<KotlinCompile> {
-    kotlinOptions.jvmTarget = "1.8"
+    withType<KotlinCompile> {
+        kotlinOptions.jvmTarget = "1.8"
+    }
 }

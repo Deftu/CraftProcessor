@@ -1,5 +1,7 @@
 [versions]
-jda = "5.0.0-alpha.17"
+jda = "5.0.0-alpha.18"
+kda = "1.0.3"
+jdac = "1.1.0"
 
 sqlitejdbc = "3.36.0.3"
 prometheus = "0.16.0"
