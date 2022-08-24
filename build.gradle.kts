@@ -34,6 +34,7 @@ dependencies {
         exclude(module = "opus-java")
     }
     shade("xyz.deftu:KDA:${libs.versions.kda.get()}")
+    shade("xyz.deftu:JDAC:${libs.versions.jdac.get()}")
 
     // Storage
     shade("org.xerial:sqlite-jdbc:${libs.versions.sqlitejdbc.get()}")

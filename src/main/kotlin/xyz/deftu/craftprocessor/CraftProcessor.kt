@@ -2,7 +2,6 @@ package xyz.deftu.craftprocessor
 
 import com.google.gson.FieldNamingPolicy
 import com.google.gson.GsonBuilder
-import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.GatewayEncoding
 import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.OnlineStatus
@@ -13,13 +12,13 @@ import net.dv8tion.jda.api.sharding.DefaultShardManagerBuilder
 import net.dv8tion.jda.api.sharding.ShardManager
 import net.dv8tion.jda.api.utils.Compression
 import xyz.deftu.craftprocessor.commands.AboutCommand
-import xyz.deftu.craftprocessor.commands.ConfigCommand
+import xyz.deftu.craftprocessor.commands.GuildConfigCommand
+import xyz.deftu.craftprocessor.commands.PersonalConfigCommand
 import xyz.deftu.craftprocessor.commands.TermsCommand
 import xyz.deftu.craftprocessor.config.ConfigManager
-import xyz.deftu.craftprocessor.config.GuildConfig
 import xyz.deftu.craftprocessor.config.LocalConfig
-import xyz.deftu.craftprocessor.config.UserConfig
 import xyz.deftu.craftprocessor.processor.ProcessorHandler
+import xyz.deftu.jdac.CommandManager
 import java.io.File
 import java.time.OffsetDateTime
 
@@ -37,6 +36,7 @@ object CraftProcessor : Thread("CraftProcessor") {
     private val shutdownListeners = mutableListOf<() -> Unit>()
 
     private lateinit var client: ShardManager
+    private val commandManagers = mutableListOf<CommandManager>()
 
     val gson = GsonBuilder()
         .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
@@ -67,11 +67,12 @@ object CraftProcessor : Thread("CraftProcessor") {
 
         // Commands
         client.shards.forEach { client ->
-            val action = client.updateCommands()
-            AboutCommand.initialize(client, action)
-            ConfigCommand.initialize(client, action)
-            TermsCommand.initialize(client, action)
-            action.queue()
+            val commandManager = CommandManager(client)
+            commandManager.register(AboutCommand())
+            commandManager.register("config", "Entrypoint to the config system", GuildConfigCommand(client), PersonalConfigCommand(client))
+            commandManager.register(TermsCommand(client))
+            commandManager.start()
+            commandManagers.add(commandManager)
         }
 
         // Config

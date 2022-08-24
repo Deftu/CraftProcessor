@@ -1,30 +1,20 @@
 package xyz.deftu.craftprocessor.commands
 
-import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
-import net.dv8tion.jda.api.hooks.SubscribeEvent
-import net.dv8tion.jda.api.interactions.commands.build.Commands
-import net.dv8tion.jda.api.requests.restaction.CommandListUpdateAction
 import xyz.deftu.MessageDecoration
 import xyz.deftu.craftprocessor.CraftProcessor
 import xyz.deftu.craftprocessor.utils.toFormattedTime
 import xyz.deftu.embed
+import xyz.deftu.jdac.BaseCommand
 import xyz.deftu.reply
 import java.time.OffsetDateTime
 import java.time.temporal.ChronoUnit
 
-object AboutCommand {
-    fun initialize(client: JDA, action: CommandListUpdateAction) {
-        client.addEventListener(this)
-        action.addCommands(
-            Commands.slash("about", "Shows off some neat information about the bot.")
-        )
-    }
+class AboutCommand : BaseCommand() {
+    override fun getName() = "about"
+    override fun getDescription() = "Shows off some neat information about the bot."
 
-    @SubscribeEvent
-    fun onSlashCommandInteraction(event: SlashCommandInteractionEvent) {
-        if (event.interaction.name != "about") return
-
+    override fun handle(event: SlashCommandInteractionEvent) {
         event.reply(embed {
             title(CraftProcessor.NAME)
             colorRaw(CraftProcessor.COLOR)

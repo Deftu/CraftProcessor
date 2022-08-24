@@ -105,6 +105,8 @@ internal class GuildConfigManager {
             components.add(listOf(
                 SelectMenu.create("guild_config - channel_whitelist_edit").apply {
                     placeholder = "Edit whitelisted channels"
+                    minValues = 0
+                    maxValues = 10
                     channels.forEach {
                         addOption(it.first, it.second)
                     }
@@ -114,6 +116,8 @@ internal class GuildConfigManager {
             components.add(listOf(
                 SelectMenu.create("guild_config - channel_blacklist_edit").apply {
                     placeholder = "Edit blacklisted channels"
+                    minValues = 0
+                    maxValues = 10
                     channels.forEach {
                         addOption(it.first, it.second)
                     }
@@ -123,6 +127,8 @@ internal class GuildConfigManager {
             components.add(listOf(
                 SelectMenu.create("guild_config - role_whitelist_edit").apply {
                     placeholder = "Edit whitelisted roles"
+                    minValues = 0
+                    maxValues = 10
                     roles.forEach {
                         addOption(it.first, it.second)
                     }
@@ -132,6 +138,8 @@ internal class GuildConfigManager {
             components.add(listOf(
                 SelectMenu.create("guild_config - role_blacklistlist_edit").apply {
                     placeholder = "Edit blacklisted roles"
+                    minValues = 0
+                    maxValues = 10
                     roles.forEach {
                         addOption(it.first, it.second)
                     }
