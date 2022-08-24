@@ -1,13 +1,14 @@
 package xyz.deftu.craftprocessor.processor
 
 import net.dv8tion.jda.api.EmbedBuilder
-import net.dv8tion.jda.api.MessageBuilder
 import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.entities.Message.Attachment
 import net.dv8tion.jda.api.entities.MessageEmbed
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import net.dv8tion.jda.api.interactions.components.ActionRow
 import net.dv8tion.jda.api.interactions.components.buttons.Button
+import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder
+import net.dv8tion.jda.api.utils.messages.MessageEditData
 import xyz.deftu.craftprocessor.StatsTracker
 import xyz.deftu.craftprocessor.config.ConfigManager
 import xyz.deftu.craftprocessor.utils.HasteUpload
@@ -62,15 +63,15 @@ class ItemProcessor(
             }
         }
 
-        val message = MessageBuilder()
-            .append("**${event.author.asTag}** uploaded a log!\n").apply {
+        val message = MessageCreateBuilder()
+            .addContent("**${event.author.asTag}** uploaded a log!\n").apply {
                 if (event.message.contentRaw.isNotBlank()) {
-                    append("\"${event.message.contentRaw}\"")
-                    append("\n")
+                    addContent("\"${event.message.contentRaw}\"")
+                    addContent("\n")
                 }
-            }.append("\n")
-            .append("**Version(s):** ${versionString}\n")
-            .append("**File:** $fileUrl")
+            }.addContent("\n")
+            .addContent("**Version(s):** ${versionString}\n")
+            .addContent("**File:** $fileUrl")
         val embeds = mutableListOf<MessageEmbed>()
 
         fun applyWith(version: IssueVersion) {
@@ -94,15 +95,15 @@ class ItemProcessor(
 
         message.setEmbeds(embeds)
         val sentMessage = event.channel.sendMessage(message
-            .setActionRows(ActionRow.of(
+            .addActionRow(
                 Button.danger(ProcessorHandler.ITEM_DELETE_ID, "Delete")
-            )).build()).complete()
+            ).build()).complete()
         if (event.isFromGuild) {
             fun editMessageDeleteError() {
-                sentMessage.editMessage(MessageBuilder(sentMessage)
-                    .append("\n\n")
-                    .append("Failed to delete original log message, this may result in some sensitive info being leaked!")
-                    .build()).queue()
+                sentMessage.editMessage(MessageEditData.fromCreateData(MessageCreateBuilder.fromMessage(sentMessage)
+                    .addContent("\n\n")
+                    .addContent("Failed to delete original log message, this may result in some sensitive info being leaked!")
+                    .build())).queue()
             }
 
             if (event.guild.selfMember.hasPermission(Permission.MESSAGE_MANAGE)) event.message.delete().queue({}, {

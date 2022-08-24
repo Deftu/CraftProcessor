@@ -30,6 +30,7 @@ fun main() {
 object CraftProcessor : Thread("CraftProcessor") {
     const val NAME = "@NAME@"
     const val VERSION = "@VERSION@"
+    const val COLOR = 0x990000
     lateinit var startTime: OffsetDateTime
         private set
 
@@ -88,6 +89,4 @@ object CraftProcessor : Thread("CraftProcessor") {
 
     fun addShutdownListener(listener: () -> Unit) =
         shutdownListeners.add(listener)
-    fun createEmbed() = EmbedBuilder()
-        .setColor(0x990000)
 }

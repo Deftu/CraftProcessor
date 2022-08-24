@@ -10,12 +10,8 @@ import net.dv8tion.jda.api.hooks.SubscribeEvent
 import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions
 import net.dv8tion.jda.api.interactions.commands.OptionType
 import net.dv8tion.jda.api.interactions.commands.build.Commands
-import net.dv8tion.jda.api.interactions.components.ActionRow
-import net.dv8tion.jda.api.interactions.components.ItemComponent
-import net.dv8tion.jda.api.interactions.components.Modal
-import net.dv8tion.jda.api.interactions.components.text.TextInput
-import net.dv8tion.jda.api.interactions.components.text.TextInputStyle
 import net.dv8tion.jda.api.requests.restaction.CommandListUpdateAction
+import net.dv8tion.jda.api.utils.messages.MessageEditData
 import xyz.deftu.craftprocessor.config.ConfigManager
 
 object ConfigCommand {
@@ -102,7 +98,7 @@ object ConfigCommand {
             "role_whitelist" -> config.roleWhitelist = !config.roleWhitelist
             "role_blacklist" -> config.roleBlacklist = !config.roleBlacklist
         }
-        event.message.editMessage(ConfigManager.createGuildMessage(config, guild))
+        event.message.editMessage(MessageEditData.fromCreateData(ConfigManager.createGuildMessage(config, guild)))
             .queue()
         ConfigManager.saveGuild(config)
         event.deferEdit().queue()
@@ -140,7 +136,7 @@ object ConfigCommand {
                 }.toMutableList()
             }
         }
-        event.message.editMessage(ConfigManager.createGuildMessage(config, guild))
+        event.message.editMessage(MessageEditData.fromCreateData(ConfigManager.createGuildMessage(config, guild)))
             .queue()
         ConfigManager.saveGuild(config)
         event.deferEdit().queue()
@@ -154,7 +150,7 @@ object ConfigCommand {
         when (type) {
             "toggle" -> config.toggle = !config.toggle
         }
-        event.message.editMessage(ConfigManager.createUserMessage(config, user))
+        event.message.editMessage(MessageEditData.fromCreateData(ConfigManager.createUserMessage(config, user)))
             .queue()
         ConfigManager.saveUser(config)
         event.deferEdit().queue()

@@ -1,13 +1,14 @@
 package xyz.deftu.craftprocessor.config
 
-import net.dv8tion.jda.api.MessageBuilder
-import net.dv8tion.jda.api.entities.Message
 import net.dv8tion.jda.api.entities.User
-import net.dv8tion.jda.api.interactions.components.ActionRow
+import net.dv8tion.jda.api.interactions.components.ItemComponent
+import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder
+import net.dv8tion.jda.api.utils.messages.MessageCreateData
 import xyz.deftu.craftprocessor.CraftProcessor
 import xyz.deftu.craftprocessor.utils.SQLiteHelper
 import xyz.deftu.craftprocessor.utils.toButton
 import xyz.deftu.craftprocessor.utils.toReadableString
+import xyz.deftu.embed
 import java.io.File
 import java.sql.Connection
 import java.time.OffsetDateTime
@@ -57,27 +58,26 @@ internal class UserConfigManager {
         )
     }
 
-    fun createMessage(config: UserConfig, user: User): Message {
-        val embed = CraftProcessor.createEmbed()
-            .setTitle("User Config (${user.asTag})")
-            .setTimestamp(OffsetDateTime.now())
-            .setFooter(user.asTag, user.avatarUrl)
-
-        embed.descriptionBuilder.apply {
-            append("**").append("Toggled: ").append("**").append(config.toggle.toReadableString())
-        }
-
-        val actionRows = mutableListOf<ActionRow>()
+    fun createMessage(config: UserConfig, user: User): MessageCreateData {
+        val components = mutableListOf<List<ItemComponent>>()
         run {
-            actionRows.add(ActionRow.of(
+            components.add(listOf(
                 config.toggle.toButton("personal_config - toggle", "Toggle")
             ))
         }
 
-        return MessageBuilder()
-            .setEmbeds(embed.build())
-            .setActionRows(actionRows)
-            .build()
+        return MessageCreateBuilder()
+            .setEmbeds(embed {
+                title("User Config (${user.asTag})")
+                colorRaw(CraftProcessor.COLOR)
+                timestamp(OffsetDateTime.now())
+                footer(user.asTag, user.avatarUrl)
+                description {
+                    append("**").append("Toggled: ").append("**").append(config.toggle.toReadableString())
+                }
+            }).apply {
+                components.forEach(::addActionRow)
+            }.build()
     }
 
     private fun loadUsers() {
