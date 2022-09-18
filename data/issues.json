@@ -25,6 +25,17 @@
                     "text": "java.lang.NoClassDefFoundError: net/optifine"
                 }
             ]
+        },
+        {
+            "title": "GeckoLib is missing",
+            "solution": "Download and install or re-enable the GeckoLib mod. (Click [here](https://www.curseforge.com/minecraft/mc-mods/geckolib/files) to download)",
+            "severity": "CRITICAL",
+            "causes": [
+                {
+                    "method": "CONTAINS",
+                    "text": "java.lang.ClassNotFoundException: software.bernie.geckolib3"
+                }
+            ]
         }
     ],
     "1.19": [
