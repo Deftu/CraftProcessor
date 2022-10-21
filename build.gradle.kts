@@ -38,8 +38,7 @@ dependencies {
 
     // Storage
     shade("org.xerial:sqlite-jdbc:${libs.versions.sqlitejdbc.get()}")
-    shade("io.prometheus:simpleclient:${libs.versions.prometheus.get()}")
-    shade("io.prometheus:simpleclient_httpserver:${libs.versions.prometheus.get()}")
+    shade("com.influxdb:influxdb-client-java:${libs.versions.influx.get()}")
 
     // Utility
     shade(api("xyz.deftu.deftils:Deftils:${libs.versions.deftils.get()}")!!)

@@ -4,7 +4,7 @@ kda = "1.0.3"
 jdac = "1.1.0"
 
 sqlitejdbc = "3.36.0.3"
-prometheus = "0.16.0"
+influx = "3.3.0"
 
 deftils = "2.0.0"
 okhttp = "4.9.3"

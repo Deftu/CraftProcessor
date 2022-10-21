@@ -33,7 +33,7 @@ class TermsCommand(
         }
 
         try {
-            val terms = DataHandler.fetchData("terms.txt", "rework")
+            val terms = DataHandler.fetchData("terms.txt")
                 .replace("\$NAME", CraftProcessor.NAME)
                 .replace("\$VERSION", CraftProcessor.VERSION)
             event.channel.sendMessage(

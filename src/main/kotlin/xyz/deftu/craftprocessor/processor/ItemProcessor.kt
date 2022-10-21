@@ -11,6 +11,7 @@ import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder
 import net.dv8tion.jda.api.utils.messages.MessageEditData
 import xyz.deftu.craftprocessor.StatsTracker
 import xyz.deftu.craftprocessor.config.ConfigManager
+import xyz.deftu.craftprocessor.events.ItemProcessedEvent
 import xyz.deftu.craftprocessor.utils.HasteUpload
 import java.time.OffsetDateTime
 
@@ -113,8 +114,7 @@ class ItemProcessor(
             }) else editMessageDeleteError()
         }
 
-        StatsTracker.incrementItemsProcessed()
-        StatsTracker.incrementItemsProcessed(strippedVersion)
+        event.jda.eventManager.handle(ItemProcessedEvent(event.jda, strippedVersion, fileUrl))
     }
 
     private fun stripVersion(content: String) =

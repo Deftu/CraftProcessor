@@ -26,5 +26,8 @@ data class LocalConfig(
 }
 
 data class StatsTrackerConfig(
-    val port: Int
+    val url: String?,
+    val token: String?,
+    val org: String?,
+    val bucket: String?
 )
