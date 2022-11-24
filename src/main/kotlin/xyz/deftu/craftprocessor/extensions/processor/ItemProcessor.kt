@@ -11,7 +11,9 @@ import dev.kord.rest.builder.message.create.embed
 import kotlinx.coroutines.runBlocking
 import kotlinx.datetime.toKotlinInstant
 import xyz.deftu.craftprocessor.util.PasteUpload
+import java.io.ByteArrayOutputStream
 import java.time.OffsetDateTime
+import java.util.zip.Inflater
 
 class ItemProcessor(
     val event: MessageCreateEvent,
@@ -21,16 +23,24 @@ class ItemProcessor(
     private val versionRegex = "(?:Minecraft Version:|Loading Minecraft) ([0-9.]+)".toRegex()
 
     override fun run() {
+        println("Processing item for ${event.message.author?.username}")
         for (attachment in attachments) {
             runBlocking {
-                println("Processing attachment")
-                var content = attachment.download().decodeToString()
+                val bytes: ByteArray = if (attachment.filename.endsWith(".log.gz")) {
+                    // If the file is a .gz file, we need to decompress it
+                    println("Decompressing ${attachment.filename}")
+                    val decompressed = decompress(attachment.download())
+                    decompressed
+                } else if (attachment.filename.endsWith(".gz")) {
+                    println("Skipping ${attachment.filename} as it is not a log file")
+                    return@runBlocking
+                } else attachment.download()
+
+                var content = bytes.decodeToString()
                 if (!ProcessorData.isMinecraftFile(content)) return@runBlocking
-                println("Processing minecraft file")
 
                 content = ProcessorData.censor(content)
                 val version = versionRegex.find(content)?.groupValues?.get(1) ?: return@runBlocking
-                println("Version: $version")
                 handle(version, content)
             }
         }
@@ -38,15 +48,11 @@ class ItemProcessor(
         if (sourceBinUrls.isNotEmpty()) {
             for (url in sourceBinUrls) {
                 runBlocking {
-                    println("Processing sourcebin link")
                     var content = PasteUpload.get(url)
-                    println("Content: $content")
                     if (!ProcessorData.isMinecraftFile(content)) return@runBlocking
-                    println("Processing minecraft file")
 
                     content = ProcessorData.censor(content)
                     val version = versionRegex.find(content)?.groupValues?.get(1) ?: return@runBlocking
-                    println("Version: $version")
                     handle(version, content)
                 }
             }
@@ -130,6 +136,25 @@ class ItemProcessor(
         }
 
         event.message.delete("Minecraft item processed")
+    }
+
+    private fun decompress(bytes: ByteArray): ByteArray {
+        val inflater = Inflater()
+        inflater.setInput(bytes)
+
+        val outputStream = ByteArrayOutputStream(bytes.size)
+        val buffer = ByteArray(1024)
+        while (!inflater.finished()) {
+            val count = inflater.inflate(buffer)
+            outputStream.write(buffer, 0, count)
+        }
+
+        outputStream.close()
+        val output = outputStream.toByteArray()
+        println("output: ${outputStream.toByteArray().decodeToString()}")
+
+        inflater.end()
+        return output
     }
 
     private fun stripVersion(content: String) =
