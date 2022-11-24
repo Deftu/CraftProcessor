@@ -17,7 +17,6 @@
     "net.minecraftforge",
     "gg.essential",
     "club.sk1er",
-    "xyz.unifycraft",
     "fabric-api",
     "Environment: authHost='https://authserver.mojang.com'",
     " with Fabric Loader "
