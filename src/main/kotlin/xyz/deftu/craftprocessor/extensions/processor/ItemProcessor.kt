@@ -13,7 +13,7 @@ import kotlinx.datetime.toKotlinInstant
 import xyz.deftu.craftprocessor.util.PasteUpload
 import java.io.ByteArrayOutputStream
 import java.time.OffsetDateTime
-import java.util.zip.Inflater
+import java.util.zip.GZIPInputStream
 
 class ItemProcessor(
     val event: MessageCreateEvent,
@@ -21,25 +21,33 @@ class ItemProcessor(
     val sourceBinUrls: Set<String>
 ) : Runnable {
     private val versionRegex = "(?:Minecraft Version:|Loading Minecraft) ([0-9.]+)".toRegex()
+    private val timeRegex = "^time: (?<date>[\\w \\/\\.:\\-]+)\$".toRegex(setOf(RegexOption.MULTILINE, RegexOption.IGNORE_CASE))
+    private val modLoaderRegexes = listOf(
+        "Forge" to "Forge version ([0-9.]+) for Minecraft ([0-9.]+)".toRegex(),
+        "Fabric" to "Loading Minecraft ([0-9.]+) with Fabric Loader ([0-9.]+)|Fabric Mods:".toRegex(),
+        "Quilt" to "Loading Minecraft ([0-9.]+) with Quilt Loader ([0-9.]+)|Quilt Mods:".toRegex()
+    )
+    private val devEnvUserRegex = "Player\\d{3}".toRegex()
+
+    private val userDirectoryRegex = "(\\/Users\\/[\\w\\s]+|\\/home\\/\\w+|C:\\\\Users\\\\[\\w\\s]+)".toRegex()
+    private val emailRegex = "[a-zA-Z0-9_.+-]{1,50}@[a-zA-Z0-9-]{1,50}\\.[a-zA-Z-.]{1,10}".toRegex()
+    private val usernameRegex = "(?:\\/INFO]: Setting user: (\\w{1,16})|--username, (\\w{1,16}))".toRegex()
 
     override fun run() {
-        println("Processing item for ${event.message.author?.username}")
         for (attachment in attachments) {
             runBlocking {
                 val bytes: ByteArray = if (attachment.filename.endsWith(".log.gz")) {
                     // If the file is a .gz file, we need to decompress it
-                    println("Decompressing ${attachment.filename}")
-                    val decompressed = decompress(attachment.download())
+                    val decompressed = decompressGzip(attachment.download())
                     decompressed
                 } else if (attachment.filename.endsWith(".gz")) {
-                    println("Skipping ${attachment.filename} as it is not a log file")
                     return@runBlocking
                 } else attachment.download()
 
                 var content = bytes.decodeToString()
                 if (!ProcessorData.isMinecraftFile(content)) return@runBlocking
 
-                content = ProcessorData.censor(content)
+                content = censor(content)
                 val version = versionRegex.find(content)?.groupValues?.get(1) ?: return@runBlocking
                 handle(version, content)
             }
@@ -51,12 +59,20 @@ class ItemProcessor(
                     var content = PasteUpload.get(url)
                     if (!ProcessorData.isMinecraftFile(content)) return@runBlocking
 
-                    content = ProcessorData.censor(content)
+                    content = censor(content)
                     val version = versionRegex.find(content)?.groupValues?.get(1) ?: return@runBlocking
                     handle(version, content)
                 }
             }
         }
+    }
+
+    private fun censor(input: String): String {
+        var input = ProcessorData.censorUrls(input)
+        input = userDirectoryRegex.replace(input, "[USER DIRECTORY]")
+        input = emailRegex.replace(input, "[EMAIL]")
+        input = usernameRegex.replace(input, "[USERNAME]")
+        return input
     }
 
     suspend fun handle(
@@ -86,6 +102,13 @@ class ItemProcessor(
             }
 
             this.content += "\n"
+            if (devEnvUserRegex.containsMatchIn(content)) this.content += "This file came from a development environment.\n"
+            val time = timeRegex.find(content)?.groupValues?.get(1)
+            if (time != null) this.content += "This file was generated at $time.\n"
+            val modLoader = modLoaderRegexes.find { (_, regex) -> regex.containsMatchIn(content) }
+            if (modLoader != null) {
+                this.content += "**Mod loader:** ${modLoader.first}\n"
+            } else this.content += "Couldn't tell what mod loader this log was produced by...\n"
             this.content += "**Minecraft Version:** $versionString\n"
             this.content += "**Log:** $fileUrl"
 
@@ -138,23 +161,11 @@ class ItemProcessor(
         event.message.delete("Minecraft item processed")
     }
 
-    private fun decompress(bytes: ByteArray): ByteArray {
-        val inflater = Inflater()
-        inflater.setInput(bytes)
-
-        val outputStream = ByteArrayOutputStream(bytes.size)
-        val buffer = ByteArray(1024)
-        while (!inflater.finished()) {
-            val count = inflater.inflate(buffer)
-            outputStream.write(buffer, 0, count)
-        }
-
-        outputStream.close()
-        val output = outputStream.toByteArray()
-        println("output: ${outputStream.toByteArray().decodeToString()}")
-
-        inflater.end()
-        return output
+    private fun decompressGzip(bytes: ByteArray): ByteArray {
+        val inputStream = GZIPInputStream(bytes.inputStream())
+        val outputStream = ByteArrayOutputStream()
+        inputStream.copyTo(outputStream)
+        return outputStream.toByteArray()
     }
 
     private fun stripVersion(content: String) =

@@ -26,7 +26,7 @@ object ProcessorData {
         }
     }
 
-    fun censor(input: String): String {
+    fun censorUrls(input: String): String {
         val urls = URL_REGEX.findAll(input)
         var input = input
         urls.forEach { match ->

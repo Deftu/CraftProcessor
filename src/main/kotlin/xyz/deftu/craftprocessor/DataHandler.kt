@@ -18,9 +18,11 @@ object DataHandler {
     }
 
     fun fetch(path: String) = client.newCall(
+        // no cache
         Request.Builder()
             .get()
             .addHeader("Cache-Control", "no-cache")
+            .addHeader("Pragma", "no-cache")
             .addHeader("User-Agent", "${NAME}/${VERSION}")
             .url(buildString {
                 append(url.replaceUrlTemplates())
