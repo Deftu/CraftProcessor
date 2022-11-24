@@ -21,8 +21,6 @@ object ProcessorData {
 
     fun isProcessableFile(input: String): Boolean {
         if (input.isBlank()) return true
-        println("input: $input")
-        println("extensions: $extensions")
         return extensions.any { extensions ->
             input.contains(extensions)
         }
@@ -47,7 +45,7 @@ object ProcessorData {
         }
     }
 
-    suspend fun reload() {
+    fun reload() {
         identifiers.clear()
         extensions.clear()
         urlWhitelist.clear()

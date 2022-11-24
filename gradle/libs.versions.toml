@@ -1,13 +1,13 @@
 [versions]
 kordex = "1.5.5-SNAPSHOT"
 
-sqlitejdbc = "3.39.3.0"
-influxdb = "2.21"
+sqlitejdbc = "3.39.4.1"
+influxdb = "2.23"
 
 enhancedeventbus = "1.0.0"
 deftils = "2.0.0"
 okhttp = "4.9.3"
-gson = "2.9.0"
+gson = "2.10"
 guava = "23.0"
 
 log4j = "2.19.0"

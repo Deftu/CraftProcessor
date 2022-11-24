@@ -21,6 +21,7 @@ object DataHandler {
         Request.Builder()
             .get()
             .addHeader("Cache-Control", "no-cache")
+            .addHeader("User-Agent", "${NAME}/${VERSION}")
             .url(buildString {
                 append(url.replaceUrlTemplates())
                 if (!url.endsWith("/")) append("/")
